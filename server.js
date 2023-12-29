@@ -1,11 +1,13 @@
 const express = require("express");
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const jobStatusTracker = require('./jobStatusTracker');
 const { MongoClient, ServerApiVersion} = require('mongodb');
 const app = express();
 const port = 3000;
 
 const uri = "mongodb+srv://liwen:hello@cluster0.8hfso.mongodb.net/?retryWrites=true&w=majority";
+let statusTracker = null;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -20,22 +22,46 @@ app.get('/', (req, res) =>{
     res.send("hello!");
 })
 
+app.post('/api/create', async (req,res) => {
+  statusTracker = new jobStatusTracker(req.body);
+  statusTracker.init();
+  console.log(statusTracker.takeMapperJob(0));
+  res.send("success");
+})
 
 app.get('/api/mapperJob', async (req,res) => {
   //TODO
+  if (statusTracker === null){
+    res.send("create a map reduce job first");
+  }
+  else{
+    res.send(statusTracker.takeMapperJob());
+  }
 })
 
 
 app.get('/api/reducerJob', async (req,res) => {
-  //TODO
+  if (statusTracker === null){
+    res.send("create a map reduce job first");
+  }
+  else{
+    try{
+      res.send(statusTracker.takeReducerJob());
+    }
+    catch(e){
+      res.send(e);
+    }
+  }
 })
 
 app.post('/api/mapperResult', async (req,res) => {
-
+  statusTracker.postMapperJob(req.body);
+  res.send("success");
 })
 
 app.post('/api/reducerResult', async (req,res) => {
-
+  statusTracker.postReducerJob(req.body);
+  res.send("success");
 })
 
 

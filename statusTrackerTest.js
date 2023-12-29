@@ -8,7 +8,7 @@ const mapper = (data) => {
     const mat = data.mat;
     let result = [];
     mat.forEach((x) => {
-        result.push([x[0], x[2]*vec[x[1]]])
+        result.push([x[0], x[2]*vec[x[1]]][1])
     });
     return result 
 };
@@ -21,4 +21,4 @@ console.log(vecMatData)
 
 const test = new statusTracker(mapper,reducer,vecMatData,0)
 test.init();
-console.log(test.takeMapperJob(0))
+console.log(mapper(test.takeMapperJob(0)))
