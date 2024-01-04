@@ -25,13 +25,19 @@ class statusTracker{
     
     takeMapperJob(){
         //this is bad. but it works for now.
+        if (this.mapperQueue.length === 0){
+            throw new Error("No available mapper job");
+        }
         const randomId = this.mapperQueue[Math.floor(Math.random() * this.mapperQueue.length)];
         return {Id:randomId, job:this.mapDataManager.jobs[randomId]};
     }
 
     takeReducerJob(){
-        if (this.reduceDataManager == null){
+        if (this.reduceDataManager === null){
             throw new Error("Mapper Jobs not Finished");
+        }
+        if (this.reducerQueue.length === 0){
+            throw new Error("No available reducer job");
         }
         const randomId = this.reducerQueue[Math.floor(Math.random() * this.reducerQueue.length)];
         return {Id:randomId, job:this.reduceDataManager.jobs[randomId]};
@@ -41,7 +47,7 @@ class statusTracker{
         // format : {Id: int, result: [[key,val]...]}
 
         if (this.mapperQueue.indexOf(result.Id) === -1){
-            return
+            throw new Error("Invalid Mapper Job Id");
         }
         this.mapperQueue.splice(this.mapperQueue.indexOf(result.Id),1);
 
@@ -67,7 +73,7 @@ class statusTracker{
             throw new Error("Mapper Jobs not Finished");
         }
         if (this.reducerQueue.indexOf(result.Id) === -1){
-            return;
+            throw new Error("Invalid Reducer Job Id");
         }
         this.reducerQueue.splice(this.reducerQueue.indexOf(result.Id),1);
 
@@ -75,7 +81,7 @@ class statusTracker{
     }
 
     aggregate(){
-        console.log(this.reducerResult);
+        return this.reducerResult;
     }
 
 }

@@ -23,19 +23,31 @@ app.get('/', (req, res) =>{
 })
 
 app.post('/api/create', async (req,res) => {
-  statusTracker = new jobStatusTracker(req.body);
-  statusTracker.init();
-  console.log(statusTracker.takeMapperJob(0));
-  res.send("success");
+  try{
+    statusTracker = new jobStatusTracker(req.body);
+    statusTracker.init();
+    res.send("success");
+  }
+  catch(e){
+    res.send("failed to init a mapreduce task");
+    console.log(e);
+  }
 })
 
 app.get('/api/mapperJob', async (req,res) => {
-  //TODO
   if (statusTracker === null){
     res.send("create a map reduce job first");
   }
   else{
-    res.send(statusTracker.takeMapperJob());
+    try {
+      const job = statusTracker.takeMapperJob();
+      console.log(job);
+      res.send(job);
+    }
+    catch(e){
+      console.log(e);
+      res.send(e.message);
+    }
   }
 })
 
@@ -49,19 +61,30 @@ app.get('/api/reducerJob', async (req,res) => {
       res.send(statusTracker.takeReducerJob());
     }
     catch(e){
-      res.send(e);
+      console.log(e);
+      res.send(e.message);
     }
   }
 })
 
 app.post('/api/mapperResult', async (req,res) => {
-  statusTracker.postMapperJob(req.body);
-  res.send("success");
+  try{
+    statusTracker.postMapperJob(req.body);
+    res.send("success");
+  }
+  catch(e){
+    res.send(e.message);
+  }
 })
 
 app.post('/api/reducerResult', async (req,res) => {
-  statusTracker.postReducerJob(req.body);
-  res.send("success");
+  try{
+    statusTracker.postReducerJob(req.body);
+    res.send("success");
+  }
+  catch(e){
+    res.send(e.message);
+  }
 })
 
 
